@@ -36,6 +36,7 @@ export default function LoginPage({ setCurrentRole }) {
     setTimeout(() => {
       setIsLoading(false);
       setCurrentRole("manager");
+      localStorage.setItem("role", "manager");
       history.push("/manager");
     }, 2000);
   };

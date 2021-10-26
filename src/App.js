@@ -1,12 +1,14 @@
 import { Switch, Route, Redirect } from "react-router-dom";
 import LoginPage from "./pages/loginPage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Manager from "./pages/Manager";
 import Technician from "./pages/Technician";
 import Resident from "./pages/Resident";
 
 function App() {
-  const [currentRole, setCurrentRole] = useState("manager");
+  const [currentRole, setCurrentRole] = useState(
+    localStorage.getItem("role") ? localStorage.getItem("role") : ""
+  );
 
   return (
     <Switch>
@@ -21,7 +23,7 @@ function App() {
       ) : currentRole === "resident" ? (
         <Route path="/resident" component={() => <Resident />} />
       ) : (
-        <></>
+        <Redirect to="/login" />
       )}
       <Redirect to="/login" />
     </Switch>
