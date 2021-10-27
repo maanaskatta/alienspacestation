@@ -15,6 +15,11 @@ import { IoMdPhotos } from "react-icons/io";
 import AccessGates from "./AccessGates";
 import Units from "./Units";
 import { ToastContainer } from "react-toastify";
+import Residents from "./Residents";
+import Parking from "./Parking";
+import RentHistory from "./RentHistory";
+import Technicians from "./Technicians";
+import WorkOrders from "./WorkOrders";
 
 const managerTiles = [
   {
@@ -26,11 +31,6 @@ const managerTiles = [
     label: "Units",
     path: "/units",
     icon: () => <BiBuildingHouse />,
-  },
-  {
-    label: "Lease Term",
-    path: "/leaseTerm",
-    icon: () => <BsHourglassSplit />,
   },
   {
     label: "Residents",
@@ -176,7 +176,7 @@ export default function Manager() {
           {managerTiles.map((tile) => (
             <Route
               path={`/manager` + tile.path}
-              component={() => <Units label={tile.label} />}
+              component={() => <WorkOrders label={tile.label} />}
             />
           ))}
         </Switch>

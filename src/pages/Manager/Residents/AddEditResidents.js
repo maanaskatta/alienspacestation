@@ -5,23 +5,65 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 
-const schema = Yup.object().shape({
-  gateName: Yup.string().nullable().required("Required"),
-  accessCode: Yup.string().nullable().required("Required"),
-});
-
 const customStyles = {
   content: {
     maxHeight: "80%",
   },
 };
 
-export default function AddEditAccessGate({
+export default function AddEditResidents({
   isModalOpen,
   setIsModalOpen,
-  gate,
+  resident,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const residentFieldKeys = [
+    {
+      name: "unitNumber",
+      placeholder: "Enter the unit number...",
+      label: "Unit Number",
+    },
+    {
+      name: "firstName",
+      placeholder: "Enter first name...",
+      label: "First Name",
+    },
+    {
+      name: "lastName",
+      placeholder: "Enter last name...",
+      label: "Last Name",
+    },
+    {
+      name: "age",
+      placeholder: "Enter the age...",
+      label: "Age",
+    },
+    {
+      name: "phoneNumber",
+      placeholder: "Enter the phone number...",
+      label: "Phone Number",
+    },
+    {
+      name: "password",
+      placeholder: "Enter the password...",
+      label: "Password",
+    },
+    {
+      name: "emailID",
+      placeholder: "Enter the email ID...",
+      label: "Email ID",
+    },
+  ];
+
+  const schema = Yup.object().shape(
+    residentFieldKeys.reduce((prev, cur) => {
+      return {
+        ...prev,
+        [cur.name]: Yup.string().nullable().required("Required"),
+      };
+    }, {})
+  );
 
   return (
     <div>
@@ -38,19 +80,23 @@ export default function AddEditAccessGate({
       >
         <div>
           <header className="rounded-t-md bg-black w-full py-5 px-12 text-white flex items-center justify-between">
-            <div className="text-white">Add {gate ? "Edit" : "New"} Gate</div>
+            <div className="text-white">
+              Add {resident ? "Edit" : "New"} Resident
+            </div>
             <button onClick={() => setIsModalOpen(false)}>
               <MdClose className="w-6 h-6 text-white" />
             </button>
           </header>
 
           <div className="p-3 flex flex-col gap-3">
-            {/* <Temp /> */}
             <Formik
-              initialValues={{
-                gateName: gate ? gate.gateName : "",
-                accessCode: gate ? gate.accessCode : "",
-              }}
+              initialValues={residentFieldKeys.reduce((prev, cur) => {
+                return {
+                  ...prev,
+                  [cur.name]:
+                    resident && resident[cur.name] ? resident[cur.name] : "",
+                };
+              }, {})}
               validationSchema={schema}
               onSubmit={(values) => {
                 console.log(values);
@@ -60,40 +106,27 @@ export default function AddEditAccessGate({
               {({ values }) => {
                 return (
                   <Form className="flex flex-col p-8 gap-5">
-                    <div>
-                      <p>
-                        Gate Name <span className="text-red-600">*</span>
-                      </p>
-                      <Field
-                        name="gateName"
-                        placeholder="Enter gate location..."
-                        className="bg-gray-100 px-3 py-2 rounded-lg w-full placeholder-black-444"
-                      />
-                      <ErrorMessage
-                        name="gateName"
-                        render={(msg) => (
-                          <div className="text-red-600 text-sm">{msg}</div>
-                        )}
-                      />
-                    </div>
-
-                    <div>
-                      <p>
-                        Access Code
-                        <span className="text-red-600">*</span>
-                      </p>
-                      <Field
-                        name="accessCode"
-                        placeholder="Enter gate access code"
-                        className="bg-gray-100 px-3 py-2 rounded-lg w-full placeholder-black-444"
-                      />
-                      <ErrorMessage
-                        name="accessCode"
-                        render={(msg) => (
-                          <div className="text-red-600 text-sm">{msg}</div>
-                        )}
-                      />
-                    </div>
+                    {residentFieldKeys.map((resident, index) => {
+                      return (
+                        <div>
+                          <p>
+                            {resident.label}
+                            <span className="text-red-600">*</span>
+                          </p>
+                          <Field
+                            name={resident.name}
+                            placeholder={resident.placeholder}
+                            className="bg-gray-100 px-3 py-2 rounded-lg w-full placeholder-black-444"
+                          />
+                          <ErrorMessage
+                            name={resident.name}
+                            render={(msg) => (
+                              <div className="text-red-600 text-sm">{msg}</div>
+                            )}
+                          />
+                        </div>
+                      );
+                    })}
 
                     <div className="flex justify-end gap-5 my-5">
                       <button

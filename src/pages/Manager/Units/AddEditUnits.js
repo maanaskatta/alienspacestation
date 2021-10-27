@@ -41,7 +41,7 @@ export default function AddEditAccessGate({
       >
         <div>
           <header className="rounded-t-md bg-black w-full py-5 px-12 text-white flex items-center justify-between">
-            <div className="text-white">Add new College</div>
+            <div className="text-white">Add {unit ? "Edit" : "New"} Unit</div>
             <button onClick={() => setIsModalOpen(false)}>
               <MdClose className="w-6 h-6 text-white" />
             </button>
