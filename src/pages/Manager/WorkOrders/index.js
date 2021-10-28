@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useTable } from "react-table";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BsPencil } from "react-icons/bs";
-// import AddEditTechnician from "./AddEditTechnician";
+import AddEditworkOrder from "./AddEditWorkOrder";
 
 const WorkOrders = ({ label }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,7 +80,7 @@ const WorkOrders = ({ label }) => {
           className="flex items-center gap-1 px-3 py-2 bg-purple-900 text-white text-base rounded"
         >
           <MdAddCircleOutline />
-          <p>Add new technician</p>
+          <p>Add new work order</p>
         </button>
       </div>
       <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
@@ -128,13 +128,13 @@ const WorkOrders = ({ label }) => {
         </tbody>
       </table>
 
-      {/* {isModalOpen ? (
-        <AddEditTechnician
+      {isModalOpen ? (
+        <AddEditworkOrder
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
-          technician={technicianToBeEdited}
+          workOrder={workOrderToBeEdited}
         />
-      ) : null} */}
+      ) : null}
     </div>
   );
 };
