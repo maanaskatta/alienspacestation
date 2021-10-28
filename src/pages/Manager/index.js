@@ -21,6 +21,7 @@ import RentHistory from "./RentHistory";
 import Technicians from "./Technicians";
 import WorkOrders from "./WorkOrders";
 import Department from "./Department";
+import Fines from "./Fines";
 
 const managerTiles = [
   {
@@ -177,7 +178,7 @@ export default function Manager() {
           {managerTiles.map((tile) => (
             <Route
               path={`/manager` + tile.path}
-              component={() => <Department label={tile.label} />}
+              component={() => <Fines label={tile.label} />}
             />
           ))}
         </Switch>
