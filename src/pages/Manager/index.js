@@ -22,6 +22,9 @@ import Technicians from "./Technicians";
 import WorkOrders from "./WorkOrders";
 import Department from "./Department";
 import Fines from "./Fines";
+import CommunityEvents from "./CommunityEvents";
+import CommunityAmenities from "./CommunityAmenities";
+import ApartmentAmenities from "./ApartmentAmenities";
 
 const managerTiles = [
   {
@@ -82,19 +85,19 @@ const managerTiles = [
     label: "Community Events",
     path: "/communityEvents",
     icon: () => <AiOutlineReconciliation />,
-    render: (label) => <p>{label}</p>,
+    render: (label) => <CommunityEvents label={label} />,
   },
   {
     label: "Community Amenities",
     path: "/communityAmenities",
     icon: () => <MdOutlineFeaturedPlayList />,
-    render: (label) => <p>{label}</p>,
+    render: (label) => <CommunityAmenities label={label} />,
   },
   {
     label: "Apartment Amenities",
     path: "/apartmentAmenities",
     icon: () => <BsCardList />,
-    render: (label) => <p>{label}</p>,
+    render: (label) => <ApartmentAmenities label={label} />,
   },
   {
     label: "Photos",

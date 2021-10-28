@@ -12,29 +12,38 @@ const customStyles = {
   },
 };
 
-export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
+export default function AddEditCommunityEvents({
+  isModalOpen,
+  setIsModalOpen,
+  event,
+}) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
-  const fineFieldKeys = [
+  const eventFieldKeys = [
     {
-      name: "unitNumber",
-      placeholder: "Enter the unit number...",
-      label: "Unit Number",
+      name: "eventName",
+      placeholder: "Enter the event name...",
+      label: "Event Name",
     },
     {
-      name: "issueDescription",
-      placeholder: "Enter the issue description...",
-      label: "Issue Description",
+      name: "description",
+      placeholder: "Enter the event description...",
+      label: "Event Description",
     },
     {
-      name: "amount",
-      placeholder: "Enter the amount...",
-      label: "Amount",
+      name: "dateAndTime",
+      placeholder: "Enter the date and time...",
+      label: "Date and Time",
+    },
+    {
+      name: "venue",
+      placeholder: "Enter the venue...",
+      label: "Venue",
     },
   ];
 
   const schema = Yup.object().shape(
-    fineFieldKeys.reduce((prev, cur) => {
+    eventFieldKeys.reduce((prev, cur) => {
       return {
         ...prev,
         [cur.name]: Yup.string().nullable().required("Required"),
@@ -57,7 +66,7 @@ export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
       >
         <div>
           <header className="rounded-t-md bg-black w-full py-5 px-12 text-white flex items-center justify-between">
-            <div className="text-white">Add {fine ? "Edit" : "New"} Fine</div>
+            <div className="text-white">Add {event ? "Edit" : "New"} Event</div>
             <button onClick={() => setIsModalOpen(false)}>
               <MdClose className="w-6 h-6 text-white" />
             </button>
@@ -65,10 +74,10 @@ export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
 
           <div className="p-3 flex flex-col gap-3">
             <Formik
-              initialValues={fineFieldKeys.reduce((prev, cur) => {
+              initialValues={eventFieldKeys.reduce((prev, cur) => {
                 return {
                   ...prev,
-                  [cur.name]: fine && fine[cur.name] ? fine[cur.name] : "",
+                  [cur.name]: event && event[cur.name] ? event[cur.name] : "",
                 };
               }, {})}
               validationSchema={schema}
@@ -80,21 +89,21 @@ export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
               {({ values }) => {
                 return (
                   <Form className="flex flex-col p-8 gap-5">
-                    {fineFieldKeys.map((fine, index) => {
-                      if (fine.type !== "select") {
+                    {eventFieldKeys.map((event, index) => {
+                      if (event.type !== "select") {
                         return (
                           <div>
                             <p>
-                              {fine.label}
+                              {event.label}
                               <span className="text-red-600">*</span>
                             </p>
                             <Field
-                              name={fine.name}
-                              placeholder={fine.placeholder}
+                              name={event.name}
+                              placeholder={event.placeholder}
                               className="bg-gray-100 px-3 py-2 rounded-lg w-full placeholder-black-444"
                             />
                             <ErrorMessage
-                              name={fine.name}
+                              name={event.name}
                               render={(msg) => (
                                 <div className="text-red-600 text-sm">
                                   {msg}
@@ -107,12 +116,12 @@ export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
                         return (
                           <div>
                             <p>
-                              {fine.label}
+                              {event.label}
                               <span className="text-red-600">*</span>
                             </p>
                             <Field
-                              name={fine.name}
-                              options={fine.options}
+                              name={event.name}
+                              options={event.options}
                               component={(props) => (
                                 <CustomStyledSelect
                                   {...props}
@@ -122,7 +131,7 @@ export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
                               )}
                             />
                             <ErrorMessage
-                              name={fine.name}
+                              name={event.name}
                               render={(msg) => (
                                 <div className="text-red-600 text-sm">
                                   {msg}
