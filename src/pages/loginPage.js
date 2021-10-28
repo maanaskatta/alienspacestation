@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { AiOutlineUser, AiOutlineLoading3Quarters } from "react-icons/ai";
+import { AiOutlineLoading3Quarters, AiOutlineUser } from "react-icons/ai";
 import { RiLockPasswordLine } from "react-icons/ri";
-import ASS from "../images/ASS.jpg";
+import { useHistory } from "react-router-dom";
 import { Slide } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
-import Alien from "../images/Alien.jpg";
-import { useHistory } from "react-router-dom";
+import ASSLogo from "../images/ASS Logo.png";
+import ASS from "../images/ASS.jpg";
 
 const slideImages = [
   ASS,
@@ -55,16 +55,13 @@ export default function LoginPage({ setCurrentRole }) {
       <div
         className="w-1/3"
         style={{
-          backgroundColor: "ivory",
+          backgroundColor: "white",
         }}
       >
         <div className="p-5 flex flex-col justify-between h-screen">
           <div className="flex flex-col gap-10 justify-center">
             <div>
-              <img
-                src="https://images.squarespace-cdn.com/content/v1/53b5502ce4b0f1c573143ee2/1509891788228-GXKL823DFB68H0XZ1ZXE/SS_Township+Logo.png?format=1500w"
-                alt=""
-              />
+              <img src={ASSLogo} alt="" />
             </div>
             <div className="bg-gray-700 flex flex-col gap-5 rounded-lg p-5">
               <div className="flex flex-col gap-1">
@@ -108,17 +105,6 @@ export default function LoginPage({ setCurrentRole }) {
                 </button>
               </div>
             </div>
-          </div>
-
-          <div className="flex justify-end">
-            <img
-              src={Alien}
-              alt=""
-              style={{
-                width: 300,
-                height: 300,
-              }}
-            />
           </div>
         </div>
       </div>

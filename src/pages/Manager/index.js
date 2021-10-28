@@ -27,6 +27,7 @@ import CommunityAmenities from "./CommunityAmenities";
 import ApartmentAmenities from "./ApartmentAmenities";
 import Photos from "./Photos";
 import Announcements from "./Announcements";
+import ASSLogo from "../../images/ASS Logo.png";
 
 const managerTiles = [
   {
@@ -127,10 +128,8 @@ const NavBar = () => {
   return (
     <div className="flex w-full flex-col gap-5">
       <div className="flex flex-col gap-3 justify-center items-center p-3">
-        <div className="w-20 h-20 rounded-full flex justify-center items-center bg-gray-800">
-          <p className="text-white text-3xl">
-            {managerData.firstName[0] + managerData.lastName[0]}
-          </p>
+        <div className="py-5 bg-white rounded-full">
+          <img src={ASSLogo} alt="" width={150} />
         </div>
         <div className="flex justify-end w-full">
           <button
@@ -192,7 +191,7 @@ export default function Manager() {
       <div className="flex w-1/6 bg-purple-900">
         <NavBar />
       </div>
-      <div className="w-full">
+      <div className="w-full flex flex-col">
         <Switch>
           {managerTiles.map((tile) => (
             <Route
