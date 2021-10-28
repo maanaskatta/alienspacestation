@@ -28,71 +28,85 @@ const managerTiles = [
     label: "Access Gates",
     path: "/accessGates",
     icon: () => <GiOpenGate />,
+    render: (label) => <AccessGates label={label} />,
   },
   {
     label: "Units",
     path: "/units",
     icon: () => <BiBuildingHouse />,
+    render: (label) => <Units label={label} />,
   },
   {
     label: "Residents",
     path: "/residents",
     icon: () => <FaUsers />,
+    render: (label) => <Residents label={label} />,
   },
   {
     label: "Parking",
     path: "/parking",
     icon: () => <AiOutlineCar />,
+    render: (label) => <Parking label={label} />,
   },
   {
     label: "Rent History",
     path: "/rentHistory",
     icon: () => <AiOutlineHistory />,
+    render: (label) => <RentHistory label={label} />,
   },
   {
     label: "Technician",
     path: "/technician",
     icon: () => <FaTools />,
+    render: (label) => <Technicians label={label} />,
   },
   {
     label: "Work Orders",
     path: "/workOrders",
     icon: () => <BsReceipt />,
+    render: (label) => <WorkOrders label={label} />,
   },
   {
     label: "Department",
     path: "/department",
     icon: () => <BiCategory />,
+    render: (label) => <Department label={label} />,
   },
   {
     label: "Fines",
     path: "/fines",
     icon: () => <FaCoins />,
+    render: (label) => <Fines label={label} />,
   },
   {
     label: "Community Events",
     path: "/communityEvents",
     icon: () => <AiOutlineReconciliation />,
+    render: (label) => <p>{label}</p>,
   },
   {
     label: "Community Amenities",
     path: "/communityAmenities",
     icon: () => <MdOutlineFeaturedPlayList />,
+    render: (label) => <p>{label}</p>,
   },
   {
     label: "Apartment Amenities",
     path: "/apartmentAmenities",
     icon: () => <BsCardList />,
+    render: (label) => <p>{label}</p>,
   },
   {
     label: "Photos",
     path: "/photos",
     icon: () => <IoMdPhotos />,
+    render: (label) => <p>{label}</p>,
   },
   {
     label: "Announcements",
     path: "/announcements",
     icon: () => <HiOutlineSpeakerphone />,
+    render: (label) => <p>{label}</p>,
   },
 ];
 
@@ -178,7 +192,7 @@ export default function Manager() {
           {managerTiles.map((tile) => (
             <Route
               path={`/manager` + tile.path}
-              component={() => <Fines label={tile.label} />}
+              component={() => tile.render(tile.label)}
             />
           ))}
         </Switch>
