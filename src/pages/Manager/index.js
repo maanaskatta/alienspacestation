@@ -25,6 +25,7 @@ import Fines from "./Fines";
 import CommunityEvents from "./CommunityEvents";
 import CommunityAmenities from "./CommunityAmenities";
 import ApartmentAmenities from "./ApartmentAmenities";
+import Photos from "./Photos";
 
 const managerTiles = [
   {
@@ -103,7 +104,7 @@ const managerTiles = [
     label: "Photos",
     path: "/photos",
     icon: () => <IoMdPhotos />,
-    render: (label) => <p>{label}</p>,
+    render: (label) => <Photos label={label} />,
   },
   {
     label: "Announcements",
