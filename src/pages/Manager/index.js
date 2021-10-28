@@ -26,6 +26,7 @@ import CommunityEvents from "./CommunityEvents";
 import CommunityAmenities from "./CommunityAmenities";
 import ApartmentAmenities from "./ApartmentAmenities";
 import Photos from "./Photos";
+import Announcements from "./Announcements";
 
 const managerTiles = [
   {
@@ -110,7 +111,7 @@ const managerTiles = [
     label: "Announcements",
     path: "/announcements",
     icon: () => <HiOutlineSpeakerphone />,
-    render: (label) => <p>{label}</p>,
+    render: (label) => <Announcements label={label} />,
   },
 ];
 
