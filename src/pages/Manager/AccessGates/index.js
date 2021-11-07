@@ -1,34 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MdAddCircleOutline, MdOutlineLocationOn } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import AddEditAccessGate from "./AddEditAccessGate";
+import Loading from "../../../components/Loading";
+import getData from "../RouteControllers/fetchData";
+import deleteData from "../RouteControllers/deleteData";
+import { toast } from "react-toastify";
 
-const fakeTestingGates = [
-  {
-    gateID: 13123,
-    gateName: "South main",
-    accessCode: 1243,
-  },
-  {
-    gateID: 17856,
-    gateName: "North back",
-    accessCode: 8795,
-  },
-  {
-    gateID: 16546,
-    gateName: "East wing",
-    accessCode: 5210,
-  },
-  {
-    gateID: 25478,
-    gateName: "West wing",
-    accessCode: 6935,
-  },
-];
-
-const Gate = ({ gate }) => {
+const Gate = ({ gate, gates, setGates }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const deleteGate = async (data) => {
+    setMutationInProgress(true);
+    let res = await deleteData("deleteAccessGate", data);
+    if (res) {
+      toast.success("Access gate deleted successfully...");
+      setMutationInProgress(false);
+      setGates(gates.filter((el) => el.gateID !== gate.gateID));
+    } else {
+      toast.error("Failed to delete access gate!...");
+      setMutationInProgress(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3 p-3 border bg-purple-200 rounded shadow-md">
@@ -49,7 +44,16 @@ const Gate = ({ gate }) => {
           }}
           className=" text-blue-900 text-xl cursor-pointer"
         />
-        <BsTrash className=" text-red-600 text-xl cursor-pointer" />
+        <BsTrash
+          onClick={() => {
+            deleteGate({
+              gateID: gate.gateID,
+            });
+          }}
+          className={`text-red-600 text-xl cursor-pointer ${
+            mutationInProgress ? " animate-spin" : ""
+          }`}
+        />
       </div>
 
       {isModalOpen ? (
@@ -67,6 +71,21 @@ const Gate = ({ gate }) => {
 
 export default function AccessGates({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [gates, setGates] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getAccessGates")
+      .then((data) => {
+        setGates(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
       <div className="flex w-full items-center justify-between">
@@ -82,11 +101,17 @@ export default function AccessGates({ label }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-5 gap-3">
-        {fakeTestingGates.map((gate) => (
-          <Gate gate={gate} />
-        ))}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : gates && gates.length > 0 ? (
+        <div className="grid grid-cols-5 gap-3">
+          {gates.map((gate) => (
+            <Gate gate={gate} gates={gates} setGates={setGates} />
+          ))}
+        </div>
+      ) : (
+        <p className="flex justify-center text-xl">No access gates found...</p>
+      )}
 
       {isModalOpen ? (
         <AddEditAccessGate

@@ -1,33 +1,32 @@
 import React, { useState } from "react";
-import { Switch, Route, Redirect, Link, useHistory } from "react-router-dom";
-import { MdOutlineDashboard, MdOutlineFeaturedPlayList } from "react-icons/md";
-import { GiOpenGate } from "react-icons/gi";
-import { BiBuildingHouse, BiCategory } from "react-icons/bi";
-import { BsHourglassSplit, BsReceipt, BsCardList } from "react-icons/bs";
-import { FaUsers, FaTools, FaCoins } from "react-icons/fa";
 import {
   AiOutlineCar,
   AiOutlineHistory,
   AiOutlineReconciliation,
 } from "react-icons/ai";
+import { BiBuildingHouse, BiCategory } from "react-icons/bi";
+import { BsCardList, BsReceipt } from "react-icons/bs";
+import { FaCoins, FaTools, FaUsers } from "react-icons/fa";
+import { GiOpenGate } from "react-icons/gi";
 import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { IoMdPhotos } from "react-icons/io";
+import { MdOutlineFeaturedPlayList } from "react-icons/md";
+import { Link, Redirect, Route, Switch, useHistory } from "react-router-dom";
+import ASSLogo from "../../images/ASS Logo.png";
 import AccessGates from "./AccessGates";
-import Units from "./Units";
-import { ToastContainer } from "react-toastify";
-import Residents from "./Residents";
-import Parking from "./Parking";
-import RentHistory from "./RentHistory";
-import Technicians from "./Technicians";
-import WorkOrders from "./WorkOrders";
+import Announcements from "./Announcements";
+import ApartmentAmenities from "./ApartmentAmenities";
+import CommunityAmenities from "./CommunityAmenities";
+import CommunityEvents from "./CommunityEvents";
 import Department from "./Department";
 import Fines from "./Fines";
-import CommunityEvents from "./CommunityEvents";
-import CommunityAmenities from "./CommunityAmenities";
-import ApartmentAmenities from "./ApartmentAmenities";
+import Parking from "./Parking";
 import Photos from "./Photos";
-import Announcements from "./Announcements";
-import ASSLogo from "../../images/ASS Logo.png";
+import RentHistory from "./RentHistory";
+import Residents from "./Residents";
+import Technicians from "./Technicians";
+import Units from "./Units";
+import WorkOrders from "./WorkOrders";
 
 const managerTiles = [
   {

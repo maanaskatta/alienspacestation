@@ -4,6 +4,8 @@ import { MdClose } from "react-icons/md";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
 
 const schema = Yup.object().shape({
   gateName: Yup.string().nullable().required("Required"),
@@ -22,6 +24,30 @@ export default function AddEditAccessGate({
   gate,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const addNewGate = async (data) => {
+    let res = await insertData("addAccessGate", data);
+    if (res) {
+      toast.success("Access gate added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new access gate!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateGate = async (data) => {
+    let res = await updateData("updateAccessGate", data);
+    if (res) {
+      toast.success("Access gate updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update access gate!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
 
   return (
     <div>
@@ -45,16 +71,24 @@ export default function AddEditAccessGate({
           </header>
 
           <div className="p-3 flex flex-col gap-3">
-            {/* <Temp /> */}
             <Formik
               initialValues={{
                 gateName: gate ? gate.gateName : "",
                 accessCode: gate ? gate.accessCode : "",
               }}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (gate) {
+                  updateGate({
+                    gateID: gate.gateID,
+                    ...values,
+                  });
+                } else {
+                  addNewGate(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {
@@ -107,6 +141,7 @@ export default function AddEditAccessGate({
                       <button
                         type="submit"
                         className="px-3 py-2 bg-blue-600 text-white rounded-lg focus:outline-none"
+                        disabled={mutationInProgress}
                       >
                         {mutationInProgress ? (
                           <div className="flex gap-3">
