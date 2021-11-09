@@ -1,13 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTable } from "react-table";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BsPencil } from "react-icons/bs";
 import AddEditResidents from "./AddEditResidents";
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
 
 const Residents = ({ label }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [residentToBeEdited, setResidentToBeEdited] = useState(null);
+  const [residents, setResidents] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getResidents")
+      .then((data) => {
+        setResidents(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
 
   const editResident = (resident) => {
     setResidentToBeEdited(resident);
@@ -15,24 +30,23 @@ const Residents = ({ label }) => {
   };
 
   const data = React.useMemo(
-    () => [
-      {
-        firstName: "Maanas",
-        lastName: "Katta",
-        unitNumber: 1053,
-        phoneNumber: 5419304455,
-        emailID: "maanaskatta6@gmail.com",
-        edit: (
-          <button
-            onClick={() => editResident(0)}
-            className="flex justify-center items-center w-full cursor-pointer"
-          >
-            <BsPencil />
-          </button>
-        ),
-      },
-    ],
-    []
+    () =>
+      residents && residents.length > 0
+        ? residents.map((resident) => {
+            return {
+              ...resident,
+              edit: (
+                <button
+                  onClick={() => editResident(resident)}
+                  className="flex justify-center items-center w-full cursor-pointer"
+                >
+                  <BsPencil />
+                </button>
+              ),
+            };
+          })
+        : [],
+    [residents]
   );
 
   const columns = React.useMemo(
@@ -84,56 +98,64 @@ const Residents = ({ label }) => {
           <p>Add new resident</p>
         </button>
       </div>
-      <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th
-                  {...column.getHeaderProps()}
-                  style={{
-                    borderBottom: "solid 3px red",
-                    background: "aliceblue",
-                    color: "black",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {column.render("Header")}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return (
-                    <td
-                      {...cell.getCellProps()}
-                      style={{
-                        padding: "10px",
-                        border: "solid 1px gray",
-                        backgroundColor: "ivory",
-                      }}
-                    >
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
+
+      {isLoading ? (
+        <Loading />
+      ) : residents && residents.length > 0 ? (
+        <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
+          <thead>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <th
+                    {...column.getHeaderProps()}
+                    style={{
+                      borderBottom: "solid 3px red",
+                      background: "aliceblue",
+                      color: "black",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {column.render("Header")}
+                  </th>
+                ))}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => {
+                    return (
+                      <td
+                        {...cell.getCellProps()}
+                        style={{
+                          padding: "10px",
+                          border: "solid 1px gray",
+                          backgroundColor: "ivory",
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <p className="flex justify-center text-xl">No residents found!..</p>
+      )}
 
       {isModalOpen ? (
         <AddEditResidents
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
-          resident={residentToBeEdited}
+          resident={residentToBeEdited ? residentToBeEdited : null}
+          setResidentToBeEdited={setResidentToBeEdited}
         />
       ) : null}
     </div>

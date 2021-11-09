@@ -4,6 +4,8 @@ import { MdClose } from "react-icons/md";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
 
 const customStyles = {
   content: {
@@ -15,7 +17,9 @@ export default function AddEditResidents({
   isModalOpen,
   setIsModalOpen,
   resident,
+  setResidentToBeEdited,
 }) {
+  console.log("Resident", resident);
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
   const residentFieldKeys = [
@@ -44,11 +48,7 @@ export default function AddEditResidents({
       placeholder: "Enter the phone number...",
       label: "Phone Number",
     },
-    {
-      name: "password",
-      placeholder: "Enter the password...",
-      label: "Password",
-    },
+
     {
       name: "emailID",
       placeholder: "Enter the email ID...",
@@ -65,12 +65,37 @@ export default function AddEditResidents({
     }, {})
   );
 
+  const addNewResident = async (data) => {
+    let res = await insertData("addResident", data);
+    if (res) {
+      toast.success("Resident added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new resident!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateResident = async (data) => {
+    let res = await updateData("updateResident", data);
+    if (res) {
+      toast.success("Resident updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update resident!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
   return (
     <div>
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => {
           setIsModalOpen(false);
+          setResidentToBeEdited(null);
         }}
         htmlOpenClassName="overflow-hidden"
         style={customStyles}
@@ -81,9 +106,14 @@ export default function AddEditResidents({
         <div>
           <header className="rounded-t-md bg-black w-full py-5 px-12 text-white flex items-center justify-between">
             <div className="text-white">
-              Add {resident ? "Edit" : "New"} Resident
+              {resident ? "Edit" : "Add"} Resident
             </div>
-            <button onClick={() => setIsModalOpen(false)}>
+            <button
+              onClick={() => {
+                setIsModalOpen(false);
+                setResidentToBeEdited(null);
+              }}
+            >
               <MdClose className="w-6 h-6 text-white" />
             </button>
           </header>
@@ -98,9 +128,18 @@ export default function AddEditResidents({
                 };
               }, {})}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (resident) {
+                  updateResident({
+                    ResidentID: resident.ResidentID,
+                    ...values,
+                  });
+                } else {
+                  addNewResident(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {
@@ -130,7 +169,10 @@ export default function AddEditResidents({
 
                     <div className="flex justify-end gap-5 my-5">
                       <button
-                        onClick={() => setIsModalOpen(false)}
+                        onClick={() => {
+                          setIsModalOpen(false);
+                          setResidentToBeEdited(null);
+                        }}
                         type="reset"
                         className="px-3 py-2 bg-red-600 text-white rounded-lg focus:outline-none"
                       >
