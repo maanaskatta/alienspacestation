@@ -1,37 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import { MdAddCircleOutline } from "react-icons/md";
 import AddEditUnits from "./AddEditUnits";
-
-const fakeUnits = [
-  {
-    UnitID: 13123,
-    noOfBedRooms: 2,
-    noOfBathRooms: 1,
-    area: 345,
-    rent: 876,
-    imageLink: "",
-  },
-  {
-    UnitID: 16183,
-    noOfBedRooms: 3,
-    noOfBathRooms: 2.5,
-    area: 1012,
-    rent: 1199,
-    imageLink: "",
-  },
-  {
-    UnitID: 15876,
-    noOfBedRooms: 1,
-    noOfBathRooms: 1,
-    area: 220,
-    rent: 600,
-    imageLink: "",
-  },
-];
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import { toast } from "react-toastify";
+import deleteData from "../RouteControllers/deleteData";
 
 const Unit = ({ unit }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const deleteUnit = async (data) => {
+    setMutationInProgress(true);
+    let res = await deleteData("deleteUnit", data);
+    if (res) {
+      toast.success("Unit deleted successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to delete unit!...");
+      setMutationInProgress(false);
+    }
+  };
 
   return (
     <div className="p-3 border bg-purple-200 rounded shadow-md flex flex-col gap-5">
@@ -77,7 +67,16 @@ const Unit = ({ unit }) => {
           }}
           className=" text-blue-900 text-xl cursor-pointer"
         />
-        <BsTrash className=" text-red-600 text-xl cursor-pointer" />
+        <BsTrash
+          onClick={() => {
+            deleteUnit({
+              UnitID: unit.UnitID,
+            });
+          }}
+          className={`text-red-600 text-xl cursor-pointer ${
+            mutationInProgress ? " animate-spin" : ""
+          }`}
+        />
       </div>
     </div>
   );
@@ -85,6 +84,21 @@ const Unit = ({ unit }) => {
 
 export default function Units({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [units, setUnits] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getUnits")
+      .then((data) => {
+        setUnits(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
       <div className="flex w-full items-center justify-between">
@@ -100,11 +114,17 @@ export default function Units({ label }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-5 gap-3">
-        {fakeUnits.map((unit) => (
-          <Unit unit={unit} />
-        ))}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : units && units.length > 0 ? (
+        <div className="grid grid-cols-5 gap-3">
+          {units.map((unit) => (
+            <Unit unit={unit} />
+          ))}
+        </div>
+      ) : (
+        <p className="flex justify-center text-xl">No units found...</p>
+      )}
 
       {isModalOpen ? (
         <AddEditUnits

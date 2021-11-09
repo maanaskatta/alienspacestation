@@ -4,11 +4,11 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import AddEditAccessGate from "./AddEditAccessGate";
 import Loading from "../../../components/Loading";
-import getData from "../RouteControllers/fetchData";
+import getData from "../RouteControllers/getData";
 import deleteData from "../RouteControllers/deleteData";
 import { toast } from "react-toastify";
 
-const Gate = ({ gate, gates, setGates }) => {
+const Gate = ({ gate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -18,7 +18,6 @@ const Gate = ({ gate, gates, setGates }) => {
     if (res) {
       toast.success("Access gate deleted successfully...");
       setMutationInProgress(false);
-      setGates(gates.filter((el) => el.gateID !== gate.gateID));
     } else {
       toast.error("Failed to delete access gate!...");
       setMutationInProgress(false);
@@ -106,7 +105,7 @@ export default function AccessGates({ label }) {
       ) : gates && gates.length > 0 ? (
         <div className="grid grid-cols-5 gap-3">
           {gates.map((gate) => (
-            <Gate gate={gate} gates={gates} setGates={setGates} />
+            <Gate gate={gate} />
           ))}
         </div>
       ) : (

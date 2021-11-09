@@ -4,6 +4,8 @@ import { MdClose } from "react-icons/md";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
 
 const schema = Yup.object().shape({
   noOfBedRooms: Yup.string().nullable().required("Required"),
@@ -19,12 +21,32 @@ const customStyles = {
   },
 };
 
-export default function AddEditAccessGate({
-  isModalOpen,
-  setIsModalOpen,
-  unit,
-}) {
+export default function AddEditUnits({ isModalOpen, setIsModalOpen, unit }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const addNewUnit = async (data) => {
+    let res = await insertData("addUnit", data);
+    if (res) {
+      toast.success("Unit added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new unit!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateUnit = async (data) => {
+    let res = await updateData("updateUnit", data);
+    if (res) {
+      toast.success("Unit updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update unit!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
 
   return (
     <div>
@@ -57,9 +79,18 @@ export default function AddEditAccessGate({
                 imageLink: unit ? unit.imageLink : "",
               }}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (unit) {
+                  updateUnit({
+                    UnitID: unit.UnitID,
+                    ...values,
+                  });
+                } else {
+                  addNewUnit(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {
