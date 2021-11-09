@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { MdClose } from "react-icons/md";
 import { ErrorMessage, Field, Form, Formik } from "formik";
@@ -6,6 +6,9 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 
 import CustomStyledSelect from "../../../components/CustomStyledSelect";
+import getData from "../RouteControllers/getData";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
 
 const customStyles = {
   content: {
@@ -19,10 +22,12 @@ export default function AddEditParkingLots({
   parking,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [residents, setResidents] = useState(null);
 
   const parkingFieldKeys = [
     {
-      name: "class",
+      name: "parkingClass",
       placeholder: "Enter the class...",
       type: "select",
       label: "Parking Class",
@@ -48,10 +53,18 @@ export default function AddEditParkingLots({
       label: "Parking Tag Number",
     },
     {
-      name: "resident",
+      name: "ResidentID",
       placeholder: "Select the resident...",
       type: "select",
       label: "Resident",
+      options: residents
+        ? residents.map((resident) => {
+            return {
+              label: resident.firstName + " " + resident.lastName,
+              value: resident.ResidentID,
+            };
+          })
+        : [],
     },
   ];
 
@@ -63,6 +76,42 @@ export default function AddEditParkingLots({
       };
     }, {})
   );
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getResidents")
+      .then((data) => {
+        setResidents(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
+  const addNewParkingLot = async (data) => {
+    let res = await insertData("addParking", data);
+    if (res) {
+      toast.success("Parking lot added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new parking lot!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateParkingLot = async (data) => {
+    let res = await updateData("updateParking", data);
+    if (res) {
+      toast.success("Parking lot updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update parking lot!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
 
   return (
     <div>
@@ -97,9 +146,18 @@ export default function AddEditParkingLots({
                 };
               }, {})}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (parking) {
+                  updateParkingLot({
+                    ParkingLotID: parking.ParkingLotID,
+                    ...values,
+                  });
+                } else {
+                  addNewParkingLot(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {
@@ -135,17 +193,21 @@ export default function AddEditParkingLots({
                               {parking.label}
                               <span className="text-red-600">*</span>
                             </p>
-                            <Field
-                              name={parking.name}
-                              options={parking.options}
-                              component={(props) => (
-                                <CustomStyledSelect
-                                  {...props}
-                                  isClearable
-                                  isSearchable
-                                />
-                              )}
-                            />
+                            {isLoading ? (
+                              <p>Loading...</p>
+                            ) : (
+                              <Field
+                                name={parking.name}
+                                options={parking.options}
+                                component={(props) => (
+                                  <CustomStyledSelect
+                                    {...props}
+                                    isClearable
+                                    isSearchable
+                                  />
+                                )}
+                              />
+                            )}
                             <ErrorMessage
                               name={parking.name}
                               render={(msg) => (

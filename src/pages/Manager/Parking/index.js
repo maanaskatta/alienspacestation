@@ -1,32 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BiCategory } from "react-icons/bi";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import { FaTag } from "react-icons/fa";
 import AddEditParkingLots from "./AddEditParkingLot";
-
-const fakeParkingLots = [
-  {
-    ParkingLotID: 13123,
-    class: "Regular",
-    parkingTagNumber: "1A",
-    ResidentID: 231233,
-  },
-  {
-    ParkingLotID: 14205,
-    class: "VIP",
-    parkingTagNumber: "5B",
-    ResidentID: null,
-  },
-];
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import NoDataText from "../../../components/NoDataText";
+import deleteData from "../RouteControllers/deleteData";
+import { toast } from "react-toastify";
 
 const ParkingLot = ({ parking }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const deleteGate = async (data) => {
+    setMutationInProgress(true);
+    let res = await deleteData("deleteParking", data);
+    if (res) {
+      toast.success("Parking lot deleted successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to delete parking lot!...");
+      setMutationInProgress(false);
+    }
+  };
 
   return (
     <div
       className={`flex flex-col gap-3 p-3 border ${
-        parking.ResidentID ? "bg-red-600 " : "bg-green-500  shadow-md"
+        parking.parkingClass === "VIP"
+          ? "bg-red-600 "
+          : parking.parkingClass === "Handicapped"
+          ? "bg-blue-500  shadow-md"
+          : "bg-green-500  shadow-md"
       } rounded text-white`}
     >
       <div className="flex items-center gap-1">
@@ -46,7 +53,16 @@ const ParkingLot = ({ parking }) => {
           }}
           className=" text-white text-xl cursor-pointer"
         />
-        <BsTrash className=" text-white text-xl cursor-pointer" />
+        <BsTrash
+          onClick={() => {
+            deleteGate({
+              ParkingLotID: parking.ParkingLotID,
+            });
+          }}
+          className={`text-white text-xl cursor-pointer ${
+            mutationInProgress ? " animate-spin" : ""
+          }`}
+        />
       </div>
 
       {isModalOpen ? (
@@ -64,6 +80,21 @@ const ParkingLot = ({ parking }) => {
 
 export default function Parking({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [parkingLots, setParkingLots] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getParkings")
+      .then((data) => {
+        setParkingLots(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
       <div className="flex w-full items-center justify-between">
@@ -79,11 +110,17 @@ export default function Parking({ label }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-5 gap-3">
-        {fakeParkingLots.map((parking) => (
-          <ParkingLot parking={parking} />
-        ))}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : parkingLots && parkingLots.length > 0 ? (
+        <div className="grid grid-cols-5 gap-3">
+          {parkingLots.map((parking) => (
+            <ParkingLot parking={parking} />
+          ))}
+        </div>
+      ) : (
+        <NoDataText message={"No parking lots found!.."} />
+      )}
 
       {isModalOpen ? (
         <AddEditParkingLots

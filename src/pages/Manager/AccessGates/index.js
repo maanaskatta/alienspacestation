@@ -4,6 +4,7 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import AddEditAccessGate from "./AddEditAccessGate";
 import Loading from "../../../components/Loading";
+import NoDataText from "../../../components/NoDataText";
 import getData from "../RouteControllers/getData";
 import deleteData from "../RouteControllers/deleteData";
 import { toast } from "react-toastify";
@@ -109,7 +110,7 @@ export default function AccessGates({ label }) {
           ))}
         </div>
       ) : (
-        <p className="flex justify-center text-xl">No access gates found...</p>
+        <NoDataText message={"No access gates found!..."} />
       )}
 
       {isModalOpen ? (
