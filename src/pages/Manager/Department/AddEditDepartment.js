@@ -4,6 +4,8 @@ import { MdClose } from "react-icons/md";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
 
 const schema = Yup.object().shape({
   departmentName: Yup.string().nullable().required("Required"),
@@ -21,6 +23,30 @@ export default function AddEditDepartment({
   department,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const addNewDepartment = async (data) => {
+    let res = await insertData("addDepartment", data);
+    if (res) {
+      toast.success("Department added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new department!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateDepartment = async (data) => {
+    let res = await updateData("updateDepartment", data);
+    if (res) {
+      toast.success("Department updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update department!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
 
   return (
     <div>
@@ -52,9 +78,18 @@ export default function AddEditDepartment({
                 departmentName: department ? department.departmentName : "",
               }}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (department) {
+                  updateDepartment({
+                    departmentID: department.departmentID,
+                    ...values,
+                  });
+                } else {
+                  addNewDepartment(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {

@@ -1,34 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import { BiCategory } from "react-icons/bi";
 import AddEditDepartment from "./AddEditDepartment";
-
-const fakeDepartments = [
-  {
-    departmentID: 15424,
-    departmentName: "Electrical",
-  },
-  {
-    departmentID: 75864,
-    departmentName: "Plumbing",
-  },
-  {
-    departmentID: 21457,
-    departmentName: "Carpenter",
-  },
-  {
-    departmentID: 56784,
-    departmentName: "General",
-  },
-  {
-    departmentID: 35144,
-    departmentName: "Painter",
-  },
-];
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import NoDataText from "../../../components/NoDataText";
+import deleteData from "../RouteControllers/deleteData";
+import { toast } from "react-toastify";
 
 const DepartmentCard = ({ department }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const deleteDepartment = async (data) => {
+    setMutationInProgress(true);
+    let res = await deleteData("deleteDepartment", data);
+    if (res) {
+      toast.success("Department deleted successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to delete department!...");
+      setMutationInProgress(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3 p-3 border bg-purple-200 rounded shadow-md">
@@ -44,7 +39,16 @@ const DepartmentCard = ({ department }) => {
           }}
           className=" text-blue-900 text-xl cursor-pointer"
         />
-        <BsTrash className=" text-red-600 text-xl cursor-pointer" />
+        <BsTrash
+          onClick={() => {
+            deleteDepartment({
+              departmentID: department.departmentID,
+            });
+          }}
+          className={`text-red-600 text-xl cursor-pointer ${
+            mutationInProgress ? " animate-spin" : ""
+          }`}
+        />
       </div>
 
       {isModalOpen ? (
@@ -62,6 +66,21 @@ const DepartmentCard = ({ department }) => {
 
 export default function Department({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [departments, setDepartments] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getDepartments")
+      .then((data) => {
+        setDepartments(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
       <div className="flex w-full items-center justify-between">
@@ -77,11 +96,17 @@ export default function Department({ label }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-5 gap-3">
-        {fakeDepartments.map((department) => (
-          <DepartmentCard department={department} />
-        ))}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : departments && departments.length > 0 ? (
+        <div className="grid grid-cols-5 gap-3">
+          {departments.map((department) => (
+            <DepartmentCard department={department} />
+          ))}
+        </div>
+      ) : (
+        <NoDataText message={"No departments found!..."} />
+      )}
 
       {isModalOpen ? (
         <AddEditDepartment
