@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { MdClose } from "react-icons/md";
 import { ErrorMessage, Field, Form, Formik } from "formik";
@@ -6,6 +6,10 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 
 import CustomStyledSelect from "../../../components/CustomStyledSelect";
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
 
 const customStyles = {
   content: {
@@ -31,63 +35,31 @@ export default function AddEditworkOrder({
       placeholder: "Enter the issue description...",
       label: "Issue Description",
     },
-    {
-      name: "department",
-      placeholder: "Select the department...",
-      label: "Department",
-      type: "select",
-      options: [
-        {
-          label: "Electrical",
-          value: "Electrical",
-        },
-        {
-          label: "Plumbing",
-          value: "Plumbing",
-        },
-        {
-          label: "General",
-          value: "General",
-        },
-        {
-          label: "Carpenter",
-          value: "Carpenter",
-        },
-        {
-          label: "Painter",
-          value: "Painter",
-        },
-      ],
-    },
-    {
-      name: "workOrder",
-      placeholder: "Select the work order...",
-      label: "Work Order",
-      type: "select",
-      options: [
-        {
-          label: "Maanas",
-          value: "Maanas",
-        },
-        {
-          label: "John",
-          value: "John",
-        },
-        {
-          label: "Elon Musk",
-          value: "Elon Musk",
-        },
-        {
-          label: "Bill Gates",
-          value: "Bill Gates",
-        },
-        {
-          label: "Jeff Bezos",
-          value: "Jeff Bezos",
-        },
-      ],
-    },
   ];
+
+  const addNewWorkOrder = async (data) => {
+    let res = await insertData("addWorkOrder", data);
+    if (res) {
+      toast.success("Work order added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new work order!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateWorkOrder = async (data) => {
+    let res = await updateData("updateWorkOrder", data);
+    if (res) {
+      toast.success("Work order updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update work order!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
 
   const schema = Yup.object().shape(
     workOrderFieldKeys.reduce((prev, cur) => {
@@ -131,9 +103,18 @@ export default function AddEditworkOrder({
                 };
               }, {})}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (workOrder) {
+                  updateWorkOrder({
+                    WorkOrderID: workOrder.WorkOrderID,
+                    ...values,
+                  });
+                } else {
+                  addNewWorkOrder(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {

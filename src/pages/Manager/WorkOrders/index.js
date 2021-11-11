@@ -1,13 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTable } from "react-table";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BsPencil } from "react-icons/bs";
 import AddEditworkOrder from "./AddEditWorkOrder";
+import getData from "../RouteControllers/getData";
+import NoDataText from "../../../components/NoDataText";
+import Loading from "../../../components/Loading";
 
 const WorkOrders = ({ label }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [workOrders, setWorkOrders] = useState(null);
   const [workOrderToBeEdited, setWorkOrderToBeEdited] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getWorkOrders")
+      .then((data) => {
+        setWorkOrders(data);
+        setIsLoading(false);
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
 
   const editWorkOrder = (workOrder) => {
     setWorkOrderToBeEdited(workOrder);
@@ -15,24 +32,23 @@ const WorkOrders = ({ label }) => {
   };
 
   const data = React.useMemo(
-    () => [
-      {
-        unitNumber: 1053,
-        dateAndTime: "24-Oct-2021",
-        issueDescription: "Hot water not coming",
-        technician: "Maanas",
-        status: "Incomplete",
-        edit: (
-          <button
-            onClick={() => editWorkOrder(0)}
-            className="flex justify-center items-center w-full cursor-pointer"
-          >
-            <BsPencil />
-          </button>
-        ),
-      },
-    ],
-    []
+    () =>
+      workOrders
+        ? workOrders.map((order) => {
+            return {
+              ...order,
+              edit: (
+                <button
+                  onClick={() => editWorkOrder(order)}
+                  className="flex justify-center items-center w-full cursor-pointer"
+                >
+                  <BsPencil />
+                </button>
+              ),
+            };
+          })
+        : [],
+    [workOrders]
   );
 
   const columns = React.useMemo(
@@ -49,14 +65,7 @@ const WorkOrders = ({ label }) => {
         Header: "Description",
         accessor: "issueDescription",
       },
-      {
-        Header: "Technician",
-        accessor: "technician",
-      },
-      {
-        Header: "Status",
-        accessor: "status",
-      },
+
       {
         Header: "",
         accessor: "edit",
@@ -83,50 +92,57 @@ const WorkOrders = ({ label }) => {
           <p>Add new work order</p>
         </button>
       </div>
-      <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th
-                  {...column.getHeaderProps()}
-                  style={{
-                    borderBottom: "solid 3px red",
-                    background: "aliceblue",
-                    color: "black",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {column.render("Header")}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return (
-                    <td
-                      {...cell.getCellProps()}
-                      style={{
-                        padding: "10px",
-                        border: "solid 1px gray",
-                        backgroundColor: "ivory",
-                      }}
-                    >
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
+
+      {isLoading ? (
+        <Loading />
+      ) : workOrders && workOrders.length > 0 ? (
+        <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
+          <thead>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <th
+                    {...column.getHeaderProps()}
+                    style={{
+                      borderBottom: "solid 3px red",
+                      background: "aliceblue",
+                      color: "black",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {column.render("Header")}
+                  </th>
+                ))}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => {
+                    return (
+                      <td
+                        {...cell.getCellProps()}
+                        style={{
+                          padding: "10px",
+                          border: "solid 1px gray",
+                          backgroundColor: "ivory",
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <NoDataText message={"No work orders found!..."} />
+      )}
 
       {isModalOpen ? (
         <AddEditworkOrder
