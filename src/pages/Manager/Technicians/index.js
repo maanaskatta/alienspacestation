@@ -1,13 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTable } from "react-table";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BsPencil } from "react-icons/bs";
 import AddEditTechnician from "./AddEditTechnician";
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import NoDataText from "../../../components/NoDataText";
 
 const Technicians = ({ label }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [technicians, setTechnicians] = useState(null);
 
   const [technicianToBeEdited, setResidentToBeEdited] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getTechnicians")
+      .then((data) => {
+        setTechnicians(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
 
   const editResident = (resident) => {
     setResidentToBeEdited(resident);
@@ -15,24 +32,23 @@ const Technicians = ({ label }) => {
   };
 
   const data = React.useMemo(
-    () => [
-      {
-        firstName: "Maanas",
-        lastName: "Katta",
-        department: "Electrical",
-        phoneNumber: 5419304455,
-
-        edit: (
-          <button
-            onClick={() => editResident(0)}
-            className="flex justify-center items-center w-full cursor-pointer"
-          >
-            <BsPencil />
-          </button>
-        ),
-      },
-    ],
-    []
+    () =>
+      technicians
+        ? technicians.map((technician) => {
+            return {
+              ...technician,
+              edit: (
+                <button
+                  onClick={() => editResident(technician)}
+                  className="flex justify-center items-center w-full cursor-pointer"
+                >
+                  <BsPencil />
+                </button>
+              ),
+            };
+          })
+        : [],
+    [technicians]
   );
 
   const columns = React.useMemo(
@@ -47,7 +63,7 @@ const Technicians = ({ label }) => {
       },
       {
         Header: "Department",
-        accessor: "department",
+        accessor: "departmentName",
       },
       {
         Header: "Phone Number",
@@ -79,50 +95,56 @@ const Technicians = ({ label }) => {
           <p>Add new technician</p>
         </button>
       </div>
-      <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th
-                  {...column.getHeaderProps()}
-                  style={{
-                    borderBottom: "solid 3px red",
-                    background: "aliceblue",
-                    color: "black",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {column.render("Header")}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return (
-                    <td
-                      {...cell.getCellProps()}
-                      style={{
-                        padding: "10px",
-                        border: "solid 1px gray",
-                        backgroundColor: "ivory",
-                      }}
-                    >
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
+      {isLoading ? (
+        <Loading />
+      ) : technicians && technicians.length > 0 ? (
+        <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
+          <thead>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <th
+                    {...column.getHeaderProps()}
+                    style={{
+                      borderBottom: "solid 3px red",
+                      background: "aliceblue",
+                      color: "black",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {column.render("Header")}
+                  </th>
+                ))}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => {
+                    return (
+                      <td
+                        {...cell.getCellProps()}
+                        style={{
+                          padding: "10px",
+                          border: "solid 1px gray",
+                          backgroundColor: "ivory",
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <NoDataText message={"No technicians found!..."} />
+      )}
 
       {isModalOpen ? (
         <AddEditTechnician

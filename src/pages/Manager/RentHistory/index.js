@@ -3,7 +3,6 @@ import { useTable } from "react-table";
 import Loading from "../../../components/Loading";
 import NoDataText from "../../../components/NoDataText";
 import getData from "../RouteControllers/getData";
-import { format } from "date-fns";
 
 const RentHistory = ({ label }) => {
   const [isLoading, setIsLoading] = useState(false);

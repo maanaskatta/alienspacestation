@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { MdClose } from "react-icons/md";
 import { ErrorMessage, Field, Form, Formik } from "formik";
@@ -6,6 +6,10 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 
 import CustomStyledSelect from "../../../components/CustomStyledSelect";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
 
 const customStyles = {
   content: {
@@ -19,35 +23,16 @@ export default function AddEditTechnician({
   technician,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
+  const [departments, setDepartments] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const technicianFieldKeys = [
     {
-      name: "department",
+      name: "departmentID",
       placeholder: "Enter the department...",
       label: "Department",
       type: "select",
-      options: [
-        {
-          label: "Electrical",
-          value: "Electrical",
-        },
-        {
-          label: "Plumbing",
-          value: "Plumbing",
-        },
-        {
-          label: "General",
-          value: "General",
-        },
-        {
-          label: "Carpenter",
-          value: "Carpenter",
-        },
-        {
-          label: "Painter",
-          value: "Painter",
-        },
-      ],
+      options: departments,
     },
     {
       name: "firstName",
@@ -64,12 +49,51 @@ export default function AddEditTechnician({
       placeholder: "Enter the phone number...",
       label: "Phone Number",
     },
-    {
-      name: "password",
-      placeholder: "Enter the password...",
-      label: "Password",
-    },
   ];
+
+  useEffect(() => {
+    (async () => {
+      let res = await getData("getDepartments");
+      if (res) {
+        setDepartments(
+          res.map((department) => {
+            return {
+              label: department.departmentName,
+              value: department.departmentID,
+            };
+          })
+        );
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+        toast.error("Failed to fetch departments!...");
+      }
+    })();
+  }, []);
+
+  const addNewResident = async (data) => {
+    let res = await insertData("addTechnician", data);
+    if (res) {
+      toast.success("Technician added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new technician!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateResident = async (data) => {
+    let res = await updateData("updateTechnician", data);
+    if (res) {
+      toast.success("Technician updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update technician!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
 
   const schema = Yup.object().shape(
     technicianFieldKeys.reduce((prev, cur) => {
@@ -103,108 +127,121 @@ export default function AddEditTechnician({
             </button>
           </header>
 
-          <div className="p-3 flex flex-col gap-3">
-            <Formik
-              initialValues={technicianFieldKeys.reduce((prev, cur) => {
-                return {
-                  ...prev,
-                  [cur.name]:
-                    technician && technician[cur.name]
-                      ? technician[cur.name]
-                      : "",
-                };
-              }, {})}
-              validationSchema={schema}
-              onSubmit={(values) => {
-                console.log(values);
-                toast.success("Success!...");
-              }}
-            >
-              {({ values }) => {
-                return (
-                  <Form className="flex flex-col p-8 gap-5">
-                    {technicianFieldKeys.map((technician, index) => {
-                      if (technician.type !== "select") {
-                        return (
-                          <div>
-                            <p>
-                              {technician.label}
-                              <span className="text-red-600">*</span>
-                            </p>
-                            <Field
-                              name={technician.name}
-                              placeholder={technician.placeholder}
-                              className="bg-gray-100 px-3 py-2 rounded-lg w-full placeholder-black-444"
-                            />
-                            <ErrorMessage
-                              name={technician.name}
-                              render={(msg) => (
-                                <div className="text-red-600 text-sm">
-                                  {msg}
-                                </div>
-                              )}
-                            />
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div>
-                            <p>
-                              {technician.label}
-                              <span className="text-red-600">*</span>
-                            </p>
-                            <Field
-                              name={technician.name}
-                              options={technician.options}
-                              component={(props) => (
-                                <CustomStyledSelect
-                                  {...props}
-                                  isClearable
-                                  isSearchable
-                                />
-                              )}
-                            />
-                            <ErrorMessage
-                              name={technician.name}
-                              render={(msg) => (
-                                <div className="text-red-600 text-sm">
-                                  {msg}
-                                </div>
-                              )}
-                            />
-                          </div>
-                        );
-                      }
-                    })}
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <div className="p-3 flex flex-col gap-3">
+              <Formik
+                initialValues={technicianFieldKeys.reduce((prev, cur) => {
+                  return {
+                    ...prev,
+                    [cur.name]:
+                      technician && technician[cur.name]
+                        ? technician[cur.name]
+                        : "",
+                  };
+                }, {})}
+                validationSchema={schema}
+                onSubmit={(values, r) => {
+                  console.log(values);
+                  setMutationInProgress(true);
+                  if (technician) {
+                    updateResident({
+                      TechnicianID: technician.TechnicianID,
+                      ...values,
+                    });
+                  } else {
+                    addNewResident(values);
+                    r.resetForm();
+                  }
+                }}
+              >
+                {({ values }) => {
+                  return (
+                    <Form className="flex flex-col p-8 gap-5">
+                      {technicianFieldKeys.map((technician, index) => {
+                        if (technician.type !== "select") {
+                          return (
+                            <div>
+                              <p>
+                                {technician.label}
+                                <span className="text-red-600">*</span>
+                              </p>
+                              <Field
+                                name={technician.name}
+                                placeholder={technician.placeholder}
+                                className="bg-gray-100 px-3 py-2 rounded-lg w-full placeholder-black-444"
+                              />
+                              <ErrorMessage
+                                name={technician.name}
+                                render={(msg) => (
+                                  <div className="text-red-600 text-sm">
+                                    {msg}
+                                  </div>
+                                )}
+                              />
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div>
+                              <p>
+                                {technician.label}
+                                <span className="text-red-600">*</span>
+                              </p>
+                              <Field
+                                name={technician.name}
+                                options={technician.options}
+                                component={(props) => (
+                                  <CustomStyledSelect
+                                    {...props}
+                                    isClearable
+                                    isSearchable
+                                  />
+                                )}
+                              />
+                              <ErrorMessage
+                                name={technician.name}
+                                render={(msg) => (
+                                  <div className="text-red-600 text-sm">
+                                    {msg}
+                                  </div>
+                                )}
+                              />
+                            </div>
+                          );
+                        }
+                      })}
 
-                    <div className="flex justify-end gap-5 my-5">
-                      <button
-                        onClick={() => setIsModalOpen(false)}
-                        type="reset"
-                        className="px-3 py-2 bg-red-600 text-white rounded-lg focus:outline-none"
-                      >
-                        Cancel
-                      </button>
+                      <div className="flex justify-end gap-5 my-5">
+                        <button
+                          onClick={() => setIsModalOpen(false)}
+                          type="reset"
+                          className="px-3 py-2 bg-red-600 text-white rounded-lg focus:outline-none"
+                        >
+                          Cancel
+                        </button>
 
-                      <button
-                        type="submit"
-                        className="px-3 py-2 bg-blue-600 text-white rounded-lg focus:outline-none"
-                      >
-                        {mutationInProgress ? (
-                          <div className="flex gap-3">
-                            <div className="spinner-grow w-6 h-6 mr-3"></div>
-                            <div>{"Please wait..."}</div>
-                          </div>
-                        ) : (
-                          "Submit"
-                        )}
-                      </button>
-                    </div>
-                  </Form>
-                );
-              }}
-            </Formik>
-          </div>
+                        <button
+                          type="submit"
+                          className="px-3 py-2 bg-blue-600 text-white rounded-lg focus:outline-none"
+                        >
+                          {mutationInProgress ? (
+                            <div className="flex gap-3">
+                              <div className="spinner-grow w-6 h-6 mr-3"></div>
+                              <div>{"Please wait..."}</div>
+                            </div>
+                          ) : (
+                            "Submit"
+                          )}
+                        </button>
+                      </div>
+                    </Form>
+                  );
+                }}
+              </Formik>
+            </div>
+          )}
         </div>
       </Modal>
     </div>
