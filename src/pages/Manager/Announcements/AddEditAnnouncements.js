@@ -5,6 +5,8 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import CustomStyledSelect from "../../../components/CustomStyledSelect";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
 
 const customStyles = {
   content: {
@@ -46,6 +48,30 @@ export default function AddEditAnnouncements({
     }, {})
   );
 
+  const addNewAnnouncement = async (data) => {
+    let res = await insertData("addAnnouncement", data);
+    if (res) {
+      toast.success("Announcement added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new announcement!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateAnnouncement = async (data) => {
+    let res = await updateData("updateAnnouncement", data);
+    if (res) {
+      toast.success("Announcement updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update announcement!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
   return (
     <div>
       <Modal
@@ -81,9 +107,18 @@ export default function AddEditAnnouncements({
                 };
               }, {})}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (announcement) {
+                  updateAnnouncement({
+                    AnnouncementID: announcement.AnnouncementID,
+                    ...values,
+                  });
+                } else {
+                  addNewAnnouncement(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {

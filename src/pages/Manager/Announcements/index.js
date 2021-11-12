@@ -1,25 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdAddCircleOutline, MdDateRange } from "react-icons/md";
 import { BiBookContent } from "react-icons/bi";
 import { BsPencil, BsTrash, BsCardHeading } from "react-icons/bs";
 import AddEditAnnouncements from "./AddEditAnnouncements";
-
-const announcements = [
-  {
-    title: "Hurricane Advisory",
-    description:
-      "All the residents are hereby informed to be careful due to the hurricane in Denton.",
-    dateAndTime: "21-Oct-2021",
-  },
-  {
-    title: "Strom Advisory",
-    description: "Heavy strom in denton.",
-    dateAndTime: "05-May-2021",
-  },
-];
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import NoDataText from "../../../components/NoDataText";
+import deleteData from "../RouteControllers/deleteData";
+import { toast } from "react-toastify";
 
 const Announcement = ({ announcement }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const deleteGate = async (data) => {
+    setMutationInProgress(true);
+    let res = await deleteData("deleteAnnouncement", data);
+    if (res) {
+      toast.success("Announcement deleted successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to delete announcement!...");
+      setMutationInProgress(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3 p-3 border bg-purple-200 rounded shadow-md">
@@ -45,7 +49,16 @@ const Announcement = ({ announcement }) => {
           }}
           className=" text-blue-900 text-xl cursor-pointer"
         />
-        <BsTrash className=" text-red-600 text-xl cursor-pointer" />
+        <BsTrash
+          onClick={() => {
+            deleteGate({
+              AnnouncementID: announcement.AnnouncementID,
+            });
+          }}
+          className={`text-red-600 text-xl cursor-pointer ${
+            mutationInProgress ? " animate-spin" : ""
+          }`}
+        />
       </div>
 
       {isModalOpen ? (
@@ -63,6 +76,21 @@ const Announcement = ({ announcement }) => {
 
 export default function Announcements({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [announcements, setAnnouncements] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getAnnouncements")
+      .then((data) => {
+        setAnnouncements(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
       <div className="flex w-full items-center justify-between">
@@ -78,11 +106,17 @@ export default function Announcements({ label }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
-        {announcements.map((announcement) => (
-          <Announcement announcement={announcement} />
-        ))}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : announcements && announcements.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3">
+          {announcements.map((announcement) => (
+            <Announcement announcement={announcement} />
+          ))}
+        </div>
+      ) : (
+        <NoDataText message={"No announcements found!..."} />
+      )}
 
       {isModalOpen ? (
         <AddEditAnnouncements
