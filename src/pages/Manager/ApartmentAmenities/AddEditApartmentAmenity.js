@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { MdClose } from "react-icons/md";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
+import getData from "../RouteControllers/getData";
 
 const schema = Yup.object().shape({
   AmenityName: Yup.string().nullable().required("Required"),
@@ -21,6 +24,30 @@ export default function AddEditApartmentAmenity({
   amenity,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const addNewAmenity = async (data) => {
+    let res = await insertData("addApartmentAmenity", data);
+    if (res) {
+      toast.success("Amenity added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new amenity!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateAmenity = async (data) => {
+    let res = await updateData("updateApartmentAmenity", data);
+    if (res) {
+      toast.success("Amenity updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update amenity!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
 
   return (
     <div>
@@ -52,9 +79,18 @@ export default function AddEditApartmentAmenity({
                 AmenityName: amenity ? amenity.AmenityName : "",
               }}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (amenity) {
+                  updateAmenity({
+                    AprtAmenityID: amenity.AprtAmenityID,
+                    ...values,
+                  });
+                } else {
+                  addNewAmenity(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {

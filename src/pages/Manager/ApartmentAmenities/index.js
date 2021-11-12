@@ -1,43 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BsPencil, BsTrash, BsCardList } from "react-icons/bs";
 import AddEditApartmentAmenity from "./AddEditApartmentAmenity";
-
-const fakeAmenities = [
-  {
-    AmenityName: "Ceiling Fan",
-  },
-  {
-    AmenityName: "Vinyl Wood Flooring",
-  },
-  {
-    AmenityName: "Free Cable & Internet w/ HBO",
-  },
-  {
-    AmenityName: "Washer/Dryer in Every Apartment",
-  },
-  {
-    AmenityName: "Granite-like Countertops",
-  },
-  {
-    AmenityName: "Large Closets",
-  },
-  {
-    AmenityName: "Space Saver Microwaves",
-  },
-  {
-    AmenityName: "Stainless Steel Appliances",
-  },
-  {
-    AmenityName: "Outdoor Fireplace",
-  },
-  {
-    AmenityName: "Fireplace",
-  },
-];
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import NoDataText from "../../../components/NoDataText";
+import deleteData from "../RouteControllers/deleteData";
+import { toast } from "react-toastify";
 
 const Amenity = ({ amenity }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const deleteAmenity = async (data) => {
+    setMutationInProgress(true);
+    let res = await deleteData("deleteApartmentAmenity", data);
+    if (res) {
+      toast.success("Amenity deleted successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to delete amenity!...");
+      setMutationInProgress(false);
+    }
+  };
 
   return (
     <div className="flex flex-col justify-between gap-3 p-3 border bg-purple-200 rounded shadow-md">
@@ -53,7 +38,16 @@ const Amenity = ({ amenity }) => {
           }}
           className=" text-blue-900 text-xl cursor-pointer"
         />
-        <BsTrash className=" text-red-600 text-xl cursor-pointer" />
+        <BsTrash
+          onClick={() => {
+            deleteAmenity({
+              AprtAmenityID: amenity.AprtAmenityID,
+            });
+          }}
+          className={`text-red-600 text-xl cursor-pointer ${
+            mutationInProgress ? " animate-spin" : ""
+          }`}
+        />
       </div>
 
       {isModalOpen ? (
@@ -71,6 +65,21 @@ const Amenity = ({ amenity }) => {
 
 export default function ApartmentAmenities({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [amenities, setAmenities] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getApartmentAmenities")
+      .then((data) => {
+        setAmenities(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
       <div className="flex w-full items-center justify-between">
@@ -86,11 +95,17 @@ export default function ApartmentAmenities({ label }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        {fakeAmenities.map((amenity) => (
-          <Amenity amenity={amenity} />
-        ))}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : amenities && amenities.length > 0 ? (
+        <div className="grid grid-cols-3 gap-3">
+          {amenities.map((amenity) => (
+            <Amenity amenity={amenity} />
+          ))}
+        </div>
+      ) : (
+        <NoDataText message={"No apartment amenities found!..."} />
+      )}
 
       {isModalOpen ? (
         <AddEditApartmentAmenity
