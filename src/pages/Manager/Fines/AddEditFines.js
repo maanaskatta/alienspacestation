@@ -16,7 +16,12 @@ const customStyles = {
   },
 };
 
-export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
+export default function AddEditfineLots({
+  isModalOpen,
+  setIsModalOpen,
+  fine,
+  setFineToBeEdited,
+}) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
   const [units, setUnits] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -110,7 +115,12 @@ export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
         <div>
           <header className="rounded-t-md bg-black w-full py-5 px-12 text-white flex items-center justify-between">
             <div className="text-white">Add {fine ? "Edit" : "New"} Fine</div>
-            <button onClick={() => setIsModalOpen(false)}>
+            <button
+              onClick={() => {
+                setIsModalOpen(false);
+                setFineToBeEdited(null);
+              }}
+            >
               <MdClose className="w-6 h-6 text-white" />
             </button>
           </header>
@@ -200,7 +210,10 @@ export default function AddEditfineLots({ isModalOpen, setIsModalOpen, fine }) {
 
                       <div className="flex justify-end gap-5 my-5">
                         <button
-                          onClick={() => setIsModalOpen(false)}
+                          onClick={() => {
+                            setIsModalOpen(false);
+                            setFineToBeEdited(null);
+                          }}
                           type="reset"
                           className="px-3 py-2 bg-red-600 text-white rounded-lg focus:outline-none"
                         >

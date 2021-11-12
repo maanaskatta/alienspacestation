@@ -1,38 +1,54 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTable } from "react-table";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BsPencil } from "react-icons/bs";
 import AddEditCommunityEvents from "./AddEditCommunityEvents";
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import NoDataText from "../../../components/NoDataText";
 
 const CommunityEvents = ({ label }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [eventToBeEdited, setEventToBeEdited] = useState(null);
+  const [events, setEvents] = useState(null);
 
   const editEvent = (resident) => {
     setEventToBeEdited(resident);
     setIsModalOpen(true);
   };
 
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getCommunityEvents")
+      .then((data) => {
+        setEvents(data);
+        setIsLoading(false);
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
   const data = React.useMemo(
-    () => [
-      {
-        eventName: "Halloween Crafts",
-        dateAndTime: "24-Oct-2021",
-        description:
-          "This event has all the crafts and tricks for the Halloween week.",
-        venue: "The Club House",
-        edit: (
-          <button
-            onClick={() => editEvent(0)}
-            className="flex justify-center items-center w-full cursor-pointer"
-          >
-            <BsPencil />
-          </button>
-        ),
-      },
-    ],
-    []
+    () =>
+      events
+        ? events.map((event) => {
+            return {
+              ...event,
+              edit: (
+                <button
+                  onClick={() => editEvent(event)}
+                  className="flex justify-center items-center w-full cursor-pointer"
+                >
+                  <BsPencil />
+                </button>
+              ),
+            };
+          })
+        : [],
+    [events]
   );
 
   const columns = React.useMemo(
@@ -80,56 +96,63 @@ const CommunityEvents = ({ label }) => {
           <p>Add new event</p>
         </button>
       </div>
-      <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th
-                  {...column.getHeaderProps()}
-                  style={{
-                    borderBottom: "solid 3px red",
-                    background: "aliceblue",
-                    color: "black",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {column.render("Header")}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return (
-                    <td
-                      {...cell.getCellProps()}
-                      style={{
-                        padding: "10px",
-                        border: "solid 1px gray",
-                        backgroundColor: "ivory",
-                      }}
-                    >
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
+      {isLoading ? (
+        <Loading />
+      ) : events && events.length > 0 ? (
+        <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
+          <thead>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <th
+                    {...column.getHeaderProps()}
+                    style={{
+                      borderBottom: "solid 3px red",
+                      background: "aliceblue",
+                      color: "black",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {column.render("Header")}
+                  </th>
+                ))}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => {
+                    return (
+                      <td
+                        {...cell.getCellProps()}
+                        style={{
+                          padding: "10px",
+                          border: "solid 1px gray",
+                          backgroundColor: "ivory",
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <NoDataText message={"No events found!..."} />
+      )}
 
       {isModalOpen ? (
         <AddEditCommunityEvents
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           event={eventToBeEdited}
+          setEventToBeEdited={setEventToBeEdited}
         />
       ) : null}
     </div>

@@ -5,6 +5,8 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import CustomStyledSelect from "../../../components/CustomStyledSelect";
+import insertData from "../RouteControllers/insertData";
+import updateData from "../RouteControllers/updateData";
 
 const customStyles = {
   content: {
@@ -16,6 +18,7 @@ export default function AddEditCommunityEvents({
   isModalOpen,
   setIsModalOpen,
   event,
+  setEventToBeEdited,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -42,6 +45,30 @@ export default function AddEditCommunityEvents({
     },
   ];
 
+  const addNewEvent = async (data) => {
+    let res = await insertData("addCommunityEvent", data);
+    if (res) {
+      toast.success("Event added successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to add new event!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
+  const updateEvent = async (data) => {
+    let res = await updateData("updateCommunityEvent", data);
+    if (res) {
+      toast.success("Event updated successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to update event!...");
+      setMutationInProgress(false);
+    }
+    console.log(res);
+  };
+
   const schema = Yup.object().shape(
     eventFieldKeys.reduce((prev, cur) => {
       return {
@@ -67,7 +94,12 @@ export default function AddEditCommunityEvents({
         <div>
           <header className="rounded-t-md bg-black w-full py-5 px-12 text-white flex items-center justify-between">
             <div className="text-white">Add {event ? "Edit" : "New"} Event</div>
-            <button onClick={() => setIsModalOpen(false)}>
+            <button
+              onClick={() => {
+                setIsModalOpen(false);
+                setEventToBeEdited(null);
+              }}
+            >
               <MdClose className="w-6 h-6 text-white" />
             </button>
           </header>
@@ -81,9 +113,18 @@ export default function AddEditCommunityEvents({
                 };
               }, {})}
               validationSchema={schema}
-              onSubmit={(values) => {
+              onSubmit={(values, r) => {
                 console.log(values);
-                toast.success("Success!...");
+                setMutationInProgress(true);
+                if (event) {
+                  updateEvent({
+                    EventID: event.EventID,
+                    ...values,
+                  });
+                } else {
+                  addNewEvent(values);
+                  r.resetForm();
+                }
               }}
             >
               {({ values }) => {
@@ -145,7 +186,10 @@ export default function AddEditCommunityEvents({
 
                     <div className="flex justify-end gap-5 my-5">
                       <button
-                        onClick={() => setIsModalOpen(false)}
+                        onClick={() => {
+                          setIsModalOpen(false);
+                          setEventToBeEdited(null);
+                        }}
                         type="reset"
                         className="px-3 py-2 bg-red-600 text-white rounded-lg focus:outline-none"
                       >

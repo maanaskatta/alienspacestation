@@ -150,6 +150,7 @@ const Fines = ({ label }) => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           fine={fineToBeEdited}
+          setFineToBeEdited={setFineToBeEdited}
         />
       ) : null}
     </div>
