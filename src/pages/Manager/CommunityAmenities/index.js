@@ -1,50 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdAddCircleOutline, MdOutlineAccountTree } from "react-icons/md";
 import { BsPencil, BsTrash } from "react-icons/bs";
 import AddEditCommunityAmenity from "./AddEditCommunityAmenity";
+import getData from "../RouteControllers/getData";
+import Loading from "../../../components/Loading";
+import NoDataText from "../../../components/NoDataText";
+import deleteData from "../RouteControllers/deleteData";
+import { toast } from "react-toastify";
 // import AddEditAccessGate from "./AddEditAccessGate";
-
-const fakeAmenities = [
-  {
-    AmenityName: "Pet Friendly",
-  },
-  {
-    AmenityName: "UNT Shuttle to Campus",
-  },
-  {
-    AmenityName: "Free Cable & Internet w/ HBO",
-  },
-  {
-    AmenityName: "Study Lounge",
-  },
-  {
-    AmenityName: "Free Gourmet Coffee Bar",
-  },
-  {
-    AmenityName: "24-hour Clubhouse and Gameroom",
-  },
-  {
-    AmenityName: "Sand Volleyball",
-  },
-  {
-    AmenityName: "Sparkling Swimming Pool",
-  },
-  {
-    AmenityName: "Outdoor Fireplace",
-  },
-  {
-    AmenityName: "Short Walk to UNT-Downtown Denton",
-  },
-  {
-    AmenityName: "Outdoor Kitchen and Lounge Areas",
-  },
-  {
-    AmenityName: "Full Basketball Court ",
-  },
-];
 
 const Amenity = ({ amenity }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mutationInProgress, setMutationInProgress] = useState(false);
+
+  const deleteAmenity = async (data) => {
+    setMutationInProgress(true);
+    let res = await deleteData("deleteCommunityAmenity", data);
+    if (res) {
+      toast.success("Amenity deleted successfully...");
+      setMutationInProgress(false);
+    } else {
+      toast.error("Failed to delete amenity!...");
+      setMutationInProgress(false);
+    }
+  };
 
   return (
     <div className="flex flex-col justify-between gap-3 p-3 border bg-purple-200 rounded shadow-md">
@@ -60,7 +39,16 @@ const Amenity = ({ amenity }) => {
           }}
           className=" text-blue-900 text-xl cursor-pointer"
         />
-        <BsTrash className=" text-red-600 text-xl cursor-pointer" />
+        <BsTrash
+          onClick={() => {
+            deleteAmenity({
+              CommAmenityID: amenity.CommAmenityID,
+            });
+          }}
+          className={`text-red-600 text-xl cursor-pointer ${
+            mutationInProgress ? " animate-spin" : ""
+          }`}
+        />
       </div>
 
       {isModalOpen ? (
@@ -78,6 +66,21 @@ const Amenity = ({ amenity }) => {
 
 export default function CommunityAmenities({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [amenities, setAmenities] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getData("getCommunityAmenities")
+      .then((data) => {
+        setAmenities(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [isModalOpen]);
+
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
       <div className="flex w-full items-center justify-between">
@@ -93,11 +96,17 @@ export default function CommunityAmenities({ label }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        {fakeAmenities.map((amenity) => (
-          <Amenity amenity={amenity} />
-        ))}
-      </div>
+      {isLoading ? (
+        <Loading />
+      ) : amenities && amenities.length > 0 ? (
+        <div className="grid grid-cols-3 gap-3">
+          {amenities.map((amenity) => (
+            <Amenity amenity={amenity} />
+          ))}
+        </div>
+      ) : (
+        <NoDataText message={"No community amenities found!..."} />
+      )}
 
       {isModalOpen ? (
         <AddEditCommunityAmenity
