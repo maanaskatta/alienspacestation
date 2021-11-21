@@ -134,7 +134,7 @@ const Residents = ({ label }) => {
                         style={{
                           padding: "10px",
                           border: "solid 1px gray",
-                          backgroundColor: "ivory",
+                          backgroundColor: "whitesmoke",
                         }}
                       >
                         {cell.render("Cell")}

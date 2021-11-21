@@ -4,6 +4,7 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import { useHistory } from "react-router-dom";
 import { Slide } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
+import { toast } from "react-toastify";
 import ASSLogo from "../images/ASS Logo.png";
 import ASS from "../images/ASS.jpg";
 
@@ -32,13 +33,19 @@ export default function LoginPage({ setCurrentRole }) {
 
   const handleLogin = () => {
     console.log(userName, password);
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      setCurrentRole("manager");
-      localStorage.setItem("role", "manager");
-      history.push("/manager");
-    }, 2000);
+    if (userName === "admin" && password === "admin") {
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        setCurrentRole("manager");
+        localStorage.setItem("role", "manager");
+        history.push("/manager");
+      }, 2000);
+    } else {
+      toast.error("Invalid login credentials");
+      setUserName(null);
+      setPassword(null);
+    }
   };
 
   return (
