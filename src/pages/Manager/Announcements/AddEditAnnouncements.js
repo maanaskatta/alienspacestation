@@ -18,6 +18,7 @@ export default function AddEditAnnouncements({
   isModalOpen,
   setIsModalOpen,
   announcement,
+  setIsUpdated,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -64,6 +65,7 @@ export default function AddEditAnnouncements({
     let res = await updateData("updateAnnouncement", data);
     if (res) {
       toast.success("Announcement updated successfully...");
+      setIsUpdated(Math.random);
       setMutationInProgress(false);
     } else {
       toast.error("Failed to update announcement!...");

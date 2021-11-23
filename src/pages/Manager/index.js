@@ -146,15 +146,15 @@ const NavBar = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
         {managerTiles.map((tile, index) => {
           return (
             <div
-              className={
+              className={`${
                 index === currentTileIndex
-                  ? "bg-white text-purple-900 pl-5 py-2"
-                  : "text-white px-5"
-              }
+                  ? "bg-white text-purple-900"
+                  : "text-white "
+              } px-5 py-3`}
             >
               <Link
                 to={`/manager` + tile.path}

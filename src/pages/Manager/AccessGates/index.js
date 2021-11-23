@@ -9,7 +9,7 @@ import getData from "../RouteControllers/getData";
 import deleteData from "../RouteControllers/deleteData";
 import { toast } from "react-toastify";
 
-const Gate = ({ gate }) => {
+const Gate = ({ gate, gates, setGates, setIsUpdated }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -18,6 +18,7 @@ const Gate = ({ gate }) => {
     let res = await deleteData("deleteAccessGate", data);
     if (res) {
       toast.success("Access gate deleted successfully...");
+      setGates(gates.filter((item) => item.gateID !== gate.gateID));
       setMutationInProgress(false);
     } else {
       toast.error("Failed to delete access gate!...");
@@ -61,6 +62,7 @@ const Gate = ({ gate }) => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           gate={gate}
+          setIsUpdated={setIsUpdated}
         />
       ) : (
         <></>
@@ -73,6 +75,7 @@ export default function AccessGates({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [gates, setGates] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -84,7 +87,7 @@ export default function AccessGates({ label }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [isModalOpen]);
+  }, [isModalOpen, isUpdated]);
 
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
@@ -106,7 +109,12 @@ export default function AccessGates({ label }) {
       ) : gates && gates.length > 0 ? (
         <div className="grid grid-cols-5 gap-3">
           {gates.map((gate) => (
-            <Gate gate={gate} />
+            <Gate
+              gate={gate}
+              gates={gates}
+              setGates={setGates}
+              setIsUpdated={setIsUpdated}
+            />
           ))}
         </div>
       ) : (

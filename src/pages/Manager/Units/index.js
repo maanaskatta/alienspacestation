@@ -7,7 +7,7 @@ import Loading from "../../../components/Loading";
 import { toast } from "react-toastify";
 import deleteData from "../RouteControllers/deleteData";
 
-const Unit = ({ unit }) => {
+const Unit = ({ unit, units, setUnits, setIsUpdated }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -16,6 +16,7 @@ const Unit = ({ unit }) => {
     let res = await deleteData("deleteUnit", data);
     if (res) {
       toast.success("Unit deleted successfully...");
+      setUnits(units.filter((item) => item.UnitID !== unit.UnitID));
       setMutationInProgress(false);
     } else {
       toast.error("Failed to delete unit!...");
@@ -55,6 +56,7 @@ const Unit = ({ unit }) => {
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}
             unit={unit}
+            setIsUpdated={setIsUpdated}
           />
         ) : (
           <></>
@@ -86,6 +88,7 @@ export default function Units({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [units, setUnits] = useState(null);
+  const [isUpdated, setIsUpdated] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -97,7 +100,7 @@ export default function Units({ label }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [isModalOpen]);
+  }, [isModalOpen, isUpdated]);
 
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
@@ -119,7 +122,12 @@ export default function Units({ label }) {
       ) : units && units.length > 0 ? (
         <div className="grid grid-cols-5 gap-3">
           {units.map((unit) => (
-            <Unit unit={unit} />
+            <Unit
+              unit={unit}
+              units={units}
+              setUnits={setUnits}
+              setIsUpdated={setIsUpdated}
+            />
           ))}
         </div>
       ) : (

@@ -21,6 +21,7 @@ export default function AddEditDepartment({
   isModalOpen,
   setIsModalOpen,
   department,
+  setIsUpdated,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -40,6 +41,7 @@ export default function AddEditDepartment({
     let res = await updateData("updateDepartment", data);
     if (res) {
       toast.success("Department updated successfully...");
+      setIsUpdated(Math.random());
       setMutationInProgress(false);
     } else {
       toast.error("Failed to update department!...");

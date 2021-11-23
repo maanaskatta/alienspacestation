@@ -20,6 +20,7 @@ export default function AddEditParkingLots({
   isModalOpen,
   setIsModalOpen,
   parking,
+  setIsUpdated,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,6 +106,7 @@ export default function AddEditParkingLots({
     let res = await updateData("updateParking", data);
     if (res) {
       toast.success("Parking lot updated successfully...");
+      setIsUpdated(Math.random());
       setMutationInProgress(false);
     } else {
       toast.error("Failed to update parking lot!...");

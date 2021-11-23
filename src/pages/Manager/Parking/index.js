@@ -10,7 +10,7 @@ import NoDataText from "../../../components/NoDataText";
 import deleteData from "../RouteControllers/deleteData";
 import { toast } from "react-toastify";
 
-const ParkingLot = ({ parking }) => {
+const ParkingLot = ({ parking, parkingLots, setParkingLots, setIsUpdated }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -19,6 +19,9 @@ const ParkingLot = ({ parking }) => {
     let res = await deleteData("deleteParking", data);
     if (res) {
       toast.success("Parking lot deleted successfully...");
+      setParkingLots(
+        parkingLots.filter((item) => item.ParkingLotID !== parking.ParkingLotID)
+      );
       setMutationInProgress(false);
     } else {
       toast.error("Failed to delete parking lot!...");
@@ -70,6 +73,7 @@ const ParkingLot = ({ parking }) => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           parking={parking}
+          setIsUpdated={setIsUpdated}
         />
       ) : (
         <></>
@@ -82,6 +86,7 @@ export default function Parking({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [parkingLots, setParkingLots] = useState(null);
+  const [isUpdated, setIsUpdated] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -93,7 +98,7 @@ export default function Parking({ label }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [isModalOpen]);
+  }, [isModalOpen, isUpdated]);
 
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
@@ -115,7 +120,12 @@ export default function Parking({ label }) {
       ) : parkingLots && parkingLots.length > 0 ? (
         <div className="grid grid-cols-5 gap-3">
           {parkingLots.map((parking) => (
-            <ParkingLot parking={parking} />
+            <ParkingLot
+              parking={parking}
+              parkingLots={parkingLots}
+              setIsUpdated={setIsUpdated}
+              setParkingLots={setParkingLots}
+            />
           ))}
         </div>
       ) : (

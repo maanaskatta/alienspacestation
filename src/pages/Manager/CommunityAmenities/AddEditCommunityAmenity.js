@@ -21,6 +21,7 @@ export default function AddEditCommunityAmenity({
   isModalOpen,
   setIsModalOpen,
   amenity,
+  setIsUpdated,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -40,6 +41,7 @@ export default function AddEditCommunityAmenity({
     let res = await updateData("updateCommunityAmenity", data);
     if (res) {
       toast.success("Amenity updated successfully...");
+      setIsUpdated(Math.random());
       setMutationInProgress(false);
     } else {
       toast.error("Failed to update amenity!...");

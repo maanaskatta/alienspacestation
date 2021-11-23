@@ -9,7 +9,12 @@ import NoDataText from "../../../components/NoDataText";
 import deleteData from "../RouteControllers/deleteData";
 import { toast } from "react-toastify";
 
-const DepartmentCard = ({ department }) => {
+const DepartmentCard = ({
+  department,
+  departments,
+  setDepartments,
+  setIsUpdated,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -18,6 +23,11 @@ const DepartmentCard = ({ department }) => {
     let res = await deleteData("deleteDepartment", data);
     if (res) {
       toast.success("Department deleted successfully...");
+      setDepartments(
+        departments.filter(
+          (item) => item.departmentID !== department.departmentID
+        )
+      );
       setMutationInProgress(false);
     } else {
       toast.error("Failed to delete department!...");
@@ -56,6 +66,7 @@ const DepartmentCard = ({ department }) => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           department={department}
+          setIsUpdated={setIsUpdated}
         />
       ) : (
         <></>
@@ -68,6 +79,7 @@ export default function Department({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [departments, setDepartments] = useState(null);
+  const [isUpdated, setIsUpdated] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -79,7 +91,7 @@ export default function Department({ label }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [isModalOpen]);
+  }, [isModalOpen, isUpdated]);
 
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
@@ -101,7 +113,12 @@ export default function Department({ label }) {
       ) : departments && departments.length > 0 ? (
         <div className="grid grid-cols-5 gap-3">
           {departments.map((department) => (
-            <DepartmentCard department={department} />
+            <DepartmentCard
+              department={department}
+              departments={departments}
+              setIsUpdated={setIsUpdated}
+              setDepartments={setDepartments}
+            />
           ))}
         </div>
       ) : (

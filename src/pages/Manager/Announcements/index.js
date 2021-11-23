@@ -9,7 +9,12 @@ import NoDataText from "../../../components/NoDataText";
 import deleteData from "../RouteControllers/deleteData";
 import { toast } from "react-toastify";
 
-const Announcement = ({ announcement }) => {
+const Announcement = ({
+  announcement,
+  announcements,
+  setAnnouncements,
+  setIsUpdated,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -18,6 +23,11 @@ const Announcement = ({ announcement }) => {
     let res = await deleteData("deleteAnnouncement", data);
     if (res) {
       toast.success("Announcement deleted successfully...");
+      setAnnouncements(
+        announcements.filter(
+          (item) => item.AnnouncementID !== announcement.AnnouncementID
+        )
+      );
       setMutationInProgress(false);
     } else {
       toast.error("Failed to delete announcement!...");
@@ -66,6 +76,7 @@ const Announcement = ({ announcement }) => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           announcement={announcement}
+          setIsUpdated={setIsUpdated}
         />
       ) : (
         <></>
@@ -78,6 +89,7 @@ export default function Announcements({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [announcements, setAnnouncements] = useState(null);
+  const [isUpdated, setIsUpdated] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -89,7 +101,7 @@ export default function Announcements({ label }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [isModalOpen]);
+  }, [isModalOpen, isUpdated]);
 
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
@@ -111,7 +123,12 @@ export default function Announcements({ label }) {
       ) : announcements && announcements.length > 0 ? (
         <div className="grid grid-cols-1 gap-3">
           {announcements.map((announcement) => (
-            <Announcement announcement={announcement} />
+            <Announcement
+              announcement={announcement}
+              announcements={announcements}
+              setAnnouncements={setAnnouncements}
+              setIsUpdated={setIsUpdated}
+            />
           ))}
         </div>
       ) : (

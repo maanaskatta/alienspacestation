@@ -21,7 +21,12 @@ const customStyles = {
   },
 };
 
-export default function AddEditUnits({ isModalOpen, setIsModalOpen, unit }) {
+export default function AddEditUnits({
+  isModalOpen,
+  setIsModalOpen,
+  unit,
+  setIsUpdated,
+}) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
   const addNewUnit = async (data) => {
@@ -40,6 +45,7 @@ export default function AddEditUnits({ isModalOpen, setIsModalOpen, unit }) {
     let res = await updateData("updateUnit", data);
     if (res) {
       toast.success("Unit updated successfully...");
+      setIsUpdated(Math.random());
       setMutationInProgress(false);
     } else {
       toast.error("Failed to update unit!...");

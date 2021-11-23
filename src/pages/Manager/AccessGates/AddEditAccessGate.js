@@ -22,6 +22,7 @@ export default function AddEditAccessGate({
   isModalOpen,
   setIsModalOpen,
   gate,
+  setIsUpdated,
 }) {
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -41,6 +42,7 @@ export default function AddEditAccessGate({
     let res = await updateData("updateAccessGate", data);
     if (res) {
       toast.success("Access gate updated successfully...");
+      setIsUpdated(Math.random());
       setMutationInProgress(false);
     } else {
       toast.error("Failed to update access gate!...");

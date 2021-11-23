@@ -8,7 +8,7 @@ import NoDataText from "../../../components/NoDataText";
 import deleteData from "../RouteControllers/deleteData";
 import { toast } from "react-toastify";
 
-const Amenity = ({ amenity }) => {
+const Amenity = ({ amenity, amenities, setAmenities, setIsUpdated }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mutationInProgress, setMutationInProgress] = useState(false);
 
@@ -17,6 +17,9 @@ const Amenity = ({ amenity }) => {
     let res = await deleteData("deleteApartmentAmenity", data);
     if (res) {
       toast.success("Amenity deleted successfully...");
+      setAmenities(
+        amenities.filter((item) => item.AprtAmenityID !== amenity.AprtAmenityID)
+      );
       setMutationInProgress(false);
     } else {
       toast.error("Failed to delete amenity!...");
@@ -55,6 +58,7 @@ const Amenity = ({ amenity }) => {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           amenity={amenity}
+          setIsUpdated={setIsUpdated}
         />
       ) : (
         <></>
@@ -67,6 +71,7 @@ export default function ApartmentAmenities({ label }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [amenities, setAmenities] = useState(null);
+  const [isUpdated, setIsUpdated] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -78,7 +83,7 @@ export default function ApartmentAmenities({ label }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [isModalOpen]);
+  }, [isModalOpen, isUpdated]);
 
   return (
     <div className="flex p-8 flex-col gap-10 w-full">
@@ -100,7 +105,12 @@ export default function ApartmentAmenities({ label }) {
       ) : amenities && amenities.length > 0 ? (
         <div className="grid grid-cols-3 gap-3">
           {amenities.map((amenity) => (
-            <Amenity amenity={amenity} />
+            <Amenity
+              amenity={amenity}
+              amenities={amenities}
+              setAmenities={setAmenities}
+              setIsUpdated={setIsUpdated}
+            />
           ))}
         </div>
       ) : (
