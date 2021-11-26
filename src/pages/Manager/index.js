@@ -115,11 +115,6 @@ const managerTiles = [
   },
 ];
 
-const managerData = {
-  firstName: "Maanas",
-  lastName: "Katta",
-};
-
 const NavBar = () => {
   const history = useHistory();
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
@@ -187,7 +182,7 @@ const NavBar = () => {
 export default function Manager() {
   return (
     <div className="flex w-full ">
-      <div className="flex w-1/6 bg-purple-900">
+      <div className="flex w-1/5 bg-purple-900 h-screen overflow-y-auto overflow-x-hidden">
         <NavBar />
       </div>
       <div className="w-full flex flex-col">

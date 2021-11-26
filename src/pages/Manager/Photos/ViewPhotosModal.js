@@ -97,16 +97,23 @@ export default function AddEditPhotoCategory({
       >
         <div>
           <header className="rounded-t-md bg-black w-full py-5 px-12 text-white flex items-center justify-between">
-            <div className="text-white">{category.categoryName}</div>
+            <div className="text-white">{category.CategoryName}</div>
             <button onClick={() => setIsModalOpen(false)}>
               <MdClose className="w-6 h-6 text-white" />
             </button>
           </header>
 
-          <div className="p-3 flex flex-col gap-3">
-            {photos[category.categoryName].map((photo) => {
-              return <img src={photo.imageLink} alt="" />;
-            })}
+          <div className="p-4">
+            {photos[category.CategoryName] &&
+            photos[category.CategoryName].length > 0 ? (
+              <div className="p-3 flex flex-col gap-3">
+                {photos[category.CategoryName].map((photo) => {
+                  return <img src={photo.imageLink} alt="" />;
+                })}
+              </div>
+            ) : (
+              <p>No photos found in this category!...</p>
+            )}
           </div>
         </div>
       </Modal>
