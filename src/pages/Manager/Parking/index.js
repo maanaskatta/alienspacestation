@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MdAddCircleOutline } from "react-icons/md";
 import { BiCategory } from "react-icons/bi";
 import { BsPencil, BsTrash } from "react-icons/bs";
-import { FaTag } from "react-icons/fa";
+import { FaTag, FaUser } from "react-icons/fa";
 import AddEditParkingLots from "./AddEditParkingLot";
 import getData from "../RouteControllers/getData";
 import Loading from "../../../components/Loading";
@@ -41,7 +41,14 @@ const ParkingLot = ({ parking, parkingLots, setParkingLots, setIsUpdated }) => {
     >
       <div className="flex items-center gap-1">
         <BiCategory className="text-xl" />
-        <p className="text-base font-medium">{parking.class}</p>
+        <p className="text-base font-medium">{parking.parkingClass}</p>
+      </div>
+
+      <div className="flex items-center gap-1">
+        <FaUser className="text-xl" />
+        <p className="text-xl font-medium">
+          {parking.firstName + " " + parking.lastName}
+        </p>
       </div>
 
       <div className="flex items-center gap-1">
