@@ -12,7 +12,6 @@ const schema = Yup.object().shape({
   noOfBathRooms: Yup.string().nullable().required("Required"),
   area: Yup.string().nullable().required("Required"),
   rent: Yup.string().nullable().required("Required"),
-  imageLink: Yup.string().nullable(),
 });
 
 const customStyles = {
@@ -82,7 +81,6 @@ export default function AddEditUnits({
                 noOfBathRooms: unit ? unit.noOfBathRooms : "",
                 area: unit ? unit.area : "",
                 rent: unit ? unit.rent : "",
-                imageLink: unit ? unit.imageLink : "",
               }}
               validationSchema={schema}
               onSubmit={(values, r) => {

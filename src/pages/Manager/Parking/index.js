@@ -45,8 +45,8 @@ const ParkingLot = ({ parking, parkingLots, setParkingLots, setIsUpdated }) => {
       </div>
 
       <div className="flex items-center gap-1">
-        <FaUser className="text-xl" />
-        <p className="text-xl font-medium">
+        <FaUser className="text-base" />
+        <p className="text-base font-medium">
           {parking.firstName + " " + parking.lastName}
         </p>
       </div>
